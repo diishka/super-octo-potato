@@ -9,9 +9,10 @@ export function MovieTile({
   badges = [],
   actions,
   className = "",
+  variant = "default",
 }) {
   return (
-    <article className={`movie-tile ${className}`.trim()}>
+    <article className={`movie-tile movie-tile-${variant} ${className}`.trim()}>
       <div className="movie-poster">
         {posterUrl ? <img src={posterUrl} alt={title} /> : <div className="poster-fallback">ARCHIVE</div>}
       </div>

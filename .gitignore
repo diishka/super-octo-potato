@@ -1,0 +1,77 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+.envrc
+secret/
+secrets/
+
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc.*
+.python-version
+.pytest_cache/
+**/.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Virtual environments
+.venv/
+**/.venv/
+venv/
+**/venv/
+env/
+ENV/
+
+# Django / local data
+*.sqlite3
+*.sqlite3*
+*.db
+*.db-*
+media/
+staticfiles/
+
+# Node / frontend
+node_modules/
+**/node_modules/
+dist/
+build/
+.vite/
+.npm/
+.pnpm-store/
+.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE / local tooling
+.DS_Store
+.idea/
+.vscode/
+.codex
+.codex/
+.agents/
+.cline/
+.swarm/
+.claude/
+
+# OS / misc
+*.log
+*.pid
+*.pid.lock
+tmp/
+temp/
+.cache/

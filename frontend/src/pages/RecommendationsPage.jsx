@@ -38,6 +38,14 @@ function normalizeSimilarMovies(items = []) {
   }));
 }
 
+function buildFeaturedRecommendation(payload) {
+  const fromFriends = normalizeFriends(payload.friends_popular)[0];
+  const fromUsers = normalizeSimilarUsers(payload.similar_users)[0];
+  const fromMovies = normalizeSimilarMovies(payload.similar_movies)[0];
+
+  return fromFriends || fromUsers || fromMovies || null;
+}
+
 export function RecommendationsPage() {
   const { isAuthenticated, token } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -95,22 +103,72 @@ export function RecommendationsPage() {
     );
   }
 
-  return (
-    <div className="page-grid wide">
-      <SectionCard eyebrow="Engine" title="Рекомендации" action={loading ? <span className="muted-inline">sync...</span> : null}>
-        <p className="muted-copy">
-          Три уровня: популярное в твоём круге, похожие пользователи и похожие
-          фильмы по жанрам.
-        </p>
-        {error ? <p className="form-error">{error}</p> : null}
-      </SectionCard>
+  const featuredRecommendation = buildFeaturedRecommendation(payload);
 
-      <div className="page-grid triple">
-        <SectionCard eyebrow="Level 1" title="Популярно среди друзей">
-          <div className="card-stack">
+  return (
+    <div className="page-grid wide recommendations-shell">
+      <section
+        className="hero-banner recommendations-hero"
+        style={
+          featuredRecommendation?.posterUrl
+            ? {
+                backgroundImage: `linear-gradient(90deg, rgba(9, 9, 9, 0.95) 0%, rgba(9, 9, 9, 0.72) 50%, rgba(9, 9, 9, 0.84) 100%), url(${featuredRecommendation.posterUrl})`,
+              }
+            : undefined
+        }
+      >
+        <div className="hero-scrim" />
+        <div className="hero-grid">
+          <div className="hero-content">
+            <div className="hero-meta-line">
+              <span>recommendation engine</span>
+              {loading ? <span>sync...</span> : <span>3 слоя подбора</span>}
+            </div>
+            <h1>{featuredRecommendation?.title || "Рекомендации для тебя"}</h1>
+            <p>
+              Три уровня: популярное в твоём круге, похожие пользователи и похожие
+              фильмы по жанрам. Социальная лента остаётся сердцем продукта, а этот
+              экран превращает её сигналы в подборки.
+            </p>
+            {featuredRecommendation ? (
+              <div className="hero-pill-row">
+                <span className="hero-pill">{featuredRecommendation.meta}</span>
+              </div>
+            ) : null}
+          </div>
+
+          <aside className="hero-side-panel hero-side-panel-compact">
+            <div className="hero-side-intro">
+              <span className="eyebrow">Навигация</span>
+              <h3>Как читать этот экран</h3>
+            </div>
+            <div className="hero-side-list">
+              <div className="hero-side-item">
+                <strong>1. Круг друзей</strong>
+                <span>Смотрим, что чаще всего всплывает у тех, кому ты доверяешь.</span>
+              </div>
+              <div className="hero-side-item">
+                <strong>2. Похожие вкусы</strong>
+                <span>Ищем людей с похожими оценками и переносим их сигналы.</span>
+              </div>
+              <div className="hero-side-item">
+                <strong>3. Родственные тайтлы</strong>
+                <span>Добираем похожее по жанрам и паттернам просмотров.</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      {error ? <p className="form-error">{error}</p> : null}
+
+      <div className="page-grid">
+        <SectionCard eyebrow="Level 1" title="Популярно среди друзей" className="shelf-card">
+          <div className="media-rail">
             {normalizeFriends(payload.friends_popular).map((item) => (
               <MovieTile
                 key={item.id}
+                variant="rail"
                 title={item.title}
                 posterUrl={item.posterUrl}
                 to={`/movie/${item.id}`}
@@ -122,11 +180,12 @@ export function RecommendationsPage() {
           </div>
         </SectionCard>
 
-        <SectionCard eyebrow="Level 2" title="Похожие пользователи">
-          <div className="card-stack">
+        <SectionCard eyebrow="Level 2" title="Похожие пользователи" className="shelf-card">
+          <div className="media-rail">
             {normalizeSimilarUsers(payload.similar_users).map((item) => (
               <MovieTile
                 key={item.id}
+                variant="rail"
                 title={item.title}
                 posterUrl={item.posterUrl}
                 to={`/movie/${item.id}`}
@@ -138,11 +197,12 @@ export function RecommendationsPage() {
           </div>
         </SectionCard>
 
-        <SectionCard eyebrow="Level 3" title="Похожие фильмы">
-          <div className="card-stack">
+        <SectionCard eyebrow="Level 3" title="Похожие фильмы" className="shelf-card">
+          <div className="media-rail">
             {normalizeSimilarMovies(payload.similar_movies).map((item) => (
               <MovieTile
                 key={item.id}
+                variant="rail"
                 title={item.title}
                 posterUrl={item.posterUrl}
                 to={`/movie/${item.id}`}

@@ -6,6 +6,24 @@ import { SectionCard } from "../components/SectionCard";
 import { useAuth } from "../context/AuthContext";
 import { apiRequest } from "../lib/api";
 
+function formatLibraryMeta(entry, fallbackLabel) {
+  const parts = [];
+
+  if (entry.rating) {
+    parts.push(`${entry.rating}/10`);
+  }
+
+  if (entry.movie.release_year) {
+    parts.push(String(entry.movie.release_year));
+  }
+
+  return parts.join(" • ") || fallbackLabel;
+}
+
+function profileInitial(profile) {
+  return profile?.username?.[0]?.toUpperCase() || "?";
+}
+
 export function ProfilePage() {
   const { username } = useParams();
   const navigate = useNavigate();
@@ -172,6 +190,42 @@ export function ProfilePage() {
       {error ? <p className="form-error">{error}</p> : null}
       {message ? <p className="form-success">{message}</p> : null}
 
+      {profile ? (
+        <section className="profile-hero-card">
+          <div className="profile-avatar-shell">
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt={profile.username} className="profile-avatar-image" />
+            ) : (
+              <div className="profile-avatar-fallback">{profileInitial(profile)}</div>
+            )}
+          </div>
+
+          <div className="profile-hero-copy">
+            <div className="hero-meta-line">
+              <span>{isOwnProfile ? "твоя зона" : "профиль пользователя"}</span>
+              <span>@{profile.username}</span>
+            </div>
+            <h1>{isOwnProfile ? "Твой профиль" : `Профиль @${profile.username}`}</h1>
+            <p>{profile.bio || "Пока без биографии, но профиль уже собирает историю просмотров и социальный след."}</p>
+
+            <div className="hero-pill-row">
+              <span className="hero-pill">{profile.watched_count} просмотрено</span>
+              <span className="hero-pill">{profile.wishlist_count} в очереди</span>
+              <span className="hero-pill">{profile.follower_count} подписчиков</span>
+              <span className="hero-pill">{profile.following_count} подписок</span>
+            </div>
+
+            {!isOwnProfile && isAuthenticated ? (
+              <div className="hero-actions">
+                <button type="button" className="primary-button" onClick={handleFollowToggle}>
+                  {profile.is_following ? "Отписаться" : "Подписаться"}
+                </button>
+              </div>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
       <div className="split-grid">
         <SectionCard
           eyebrow={loading ? "Syncing" : "Profile"}
@@ -179,7 +233,7 @@ export function ProfilePage() {
           action={
             !isOwnProfile && isAuthenticated && profile ? (
               <button type="button" className="primary-button compact" onClick={handleFollowToggle}>
-                {profile.is_following ? "Unfollow" : "Follow"}
+                {profile.is_following ? "Отписаться" : "Подписаться"}
               </button>
             ) : null
           }
@@ -264,14 +318,17 @@ export function ProfilePage() {
 
       <div className="page-grid triple">
         <SectionCard eyebrow="Watched" title="Просмотрено">
-          <div className="card-stack">
+          <div className="library-grid">
             {watched.map((entry) => (
               <MovieTile
                 key={entry.id}
+                className="movie-tile-profile"
                 title={entry.movie.title}
                 posterUrl={entry.movie.poster_url}
                 to={`/movie/${entry.movie.id}`}
-                meta={entry.rating ? `${entry.rating}/10` : "без оценки"}
+                meta={formatLibraryMeta(entry, "без оценки")}
+                description={entry.review || entry.movie.description}
+                badges={entry.rating ? [`${entry.rating}/10`] : ["Просмотрено"]}
               />
             ))}
             {!watched.length ? <p>Пока пусто.</p> : null}
@@ -279,14 +336,17 @@ export function ProfilePage() {
         </SectionCard>
 
         <SectionCard eyebrow="Queue" title="Хочу посмотреть">
-          <div className="card-stack">
+          <div className="library-grid">
             {wishlist.map((entry) => (
               <MovieTile
                 key={entry.id}
+                className="movie-tile-profile"
                 title={entry.movie.title}
                 posterUrl={entry.movie.poster_url}
                 to={`/movie/${entry.movie.id}`}
-                meta={entry.movie.release_year ? String(entry.movie.release_year) : "tba"}
+                meta={formatLibraryMeta(entry, "скоро в очереди")}
+                description={entry.movie.description}
+                badges={["В списке"]}
               />
             ))}
             {!wishlist.length ? <p>Пока пусто.</p> : null}
@@ -294,6 +354,7 @@ export function ProfilePage() {
         </SectionCard>
 
         <SectionCard eyebrow="Network" title="Социальный граф">
+          <p className="muted-copy">Подписчики</p>
           <div className="people-grid">
             {followers.map((person) => (
               <button
@@ -306,7 +367,7 @@ export function ProfilePage() {
               </button>
             ))}
           </div>
-          <p className="muted-copy">Following:</p>
+          <p className="muted-copy">Подписки</p>
           <div className="people-grid">
             {following.map((person) => (
               <button

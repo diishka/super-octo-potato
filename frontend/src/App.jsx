@@ -40,9 +40,9 @@ function UserIcon() {
 }
 
 const navItems = [
-  { to: "/", label: "Лента", icon: HomeIcon },
+  { to: "/", label: "Главная", icon: HomeIcon },
   { to: "/search", label: "Каталог", icon: GridIcon },
-  { to: "/recommendations", label: "Подборки", icon: SparkIcon },
+  { to: "/recommendations", label: "Для тебя", icon: SparkIcon },
   { to: "/profile", label: "Профиль", icon: UserIcon },
 ];
 
@@ -53,7 +53,7 @@ function TopBar() {
     <header className="topbar">
       <div className="topbar-brand">
         <span className="topbar-kicker">SceneCircle</span>
-        <strong>movie social</strong>
+        <strong>social streaming</strong>
       </div>
 
       <div className="topbar-actions">

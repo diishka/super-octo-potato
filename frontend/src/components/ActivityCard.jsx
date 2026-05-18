@@ -9,6 +9,9 @@ const activityLabels = {
 
 export function ActivityCard({ activity, onLike, onComment, busy }) {
   const [comment, setComment] = useState("");
+  const [showAllComments, setShowAllComments] = useState(false);
+  const comments = activity.comments || [];
+  const visibleComments = showAllComments ? comments : comments.slice(0, 2);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -60,15 +63,26 @@ export function ActivityCard({ activity, onLike, onComment, busy }) {
         </div>
 
         <div className="comment-stack">
-          {activity.comments?.map((item) => (
+          {visibleComments.map((item) => (
             <div key={item.id} className="comment-bubble">
               <strong>@{item.user.username}</strong>
               <p>{item.text}</p>
             </div>
           ))}
+          {comments.length > 2 ? (
+            <button
+              type="button"
+              className="ghost-button compact activity-toggle"
+              onClick={() => setShowAllComments((current) => !current)}
+            >
+              {showAllComments
+                ? "Свернуть комментарии"
+                : `Показать ещё ${comments.length - 2}`}
+            </button>
+          ) : null}
         </div>
 
-        <form className="inline-form" onSubmit={handleSubmit}>
+        <form className="inline-form activity-compose" onSubmit={handleSubmit}>
           <input
             value={comment}
             onChange={(event) => setComment(event.target.value)}
